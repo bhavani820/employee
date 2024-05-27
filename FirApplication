@@ -1,0 +1,216 @@
+package com.example.fir.entity;
+
+import javax.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class Complainant {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String fullName;
+    private String address;
+    private String phoneNumber;
+    private String emailAddress;
+}
+package com.example.fir.entity;
+
+import javax.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class EmploymentDetails {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "complainant_id")
+    private Complainant complainant;
+    
+    private String jobTitle;
+    private String employerName;
+    private String employerAddress;
+    private String workPhoneNumber;
+    private String workEmailAddress;
+    private String employmentStatus;
+    private String durationOfEmployment;
+}
+package com.example.fir.entity;
+
+import javax.persistence.*;
+import lombok.Data;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+@Data
+@Entity
+public class Incident {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "complainant_id")
+    private Complainant complainant;
+    
+    private String description;
+    private LocalDate date;
+    private LocalTime time;
+    private String location;
+    private String impactOnEmployment;
+}
+package com.example.fir.entity;
+
+import javax.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class Witness {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "incident_id")
+    private Incident incident;
+    
+    private String name;
+    private String contact;
+}
+package com.example.fir.entity;
+
+import javax.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class Evidence {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "incident_id")
+    private Incident incident;
+    
+    private String description;
+    private String filePath;
+}
+package com.example.fir.entity;
+
+import javax.persistence.*;
+import lombok.Data;
+
+@Data
+@Entity
+public class Evidence {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "incident_id")
+    private Incident incident;
+    
+    private String description;
+    private String filePath;
+}
+package com.example.fir.repository;
+
+import com.example.fir.entity.Complainant;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ComplainantRepository extends JpaRepository<Complainant, Long> {
+}
+package com.example.fir.repository;
+
+import com.example.fir.entity.EmploymentDetails;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EmploymentDetailsRepository extends JpaRepository<EmploymentDetails, Long> {
+}
+package com.example.fir.repository;
+
+import com.example.fir.entity.Witness;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface WitnessRepository extends JpaRepository<Witness, Long> {
+}
+package com.example.fir.repository;
+
+import com.example.fir.entity.Evidence;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EvidenceRepository extends JpaRepository<Evidence, Long> {
+}
+package com.example.fir.service;
+
+import com.example.fir.entity.Complainant;
+import com.example.fir.repository.ComplainantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class ComplainantService {
+    @Autowired
+    private ComplainantRepository complainantRepository;
+
+    public Complainant saveComplainant(Complainant complainant) {
+        return complainantRepository.save(complainant);
+    }
+
+    public List<Complainant> getAllComplainants() {
+        return complainantRepository.findAll();
+    }
+
+    public Complainant getComplainantById(Long id) {
+        return complainantRepository.findById(id).orElse(null);
+    }
+}
+package com.example.fir.controller;
+
+import com.example.fir.entity.Complainant;
+import com.example.fir.service.ComplainantService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/complainants")
+public class ComplainantController {
+    @Autowired
+    private ComplainantService complainantService;
+
+    @PostMapping
+    public Complainant createComplainant(@RequestBody Complainant complainant) {
+        return complainantService.saveComplainant(complainant);
+    }
+
+    @GetMapping
+    public List<Complainant> getAllComplainants() {
+        return complainantService.getAllComplainants();
+    }
+
+    @GetMapping("/{id}")
+    public Complainant getComplainantById(@PathVariable Long id) {
+        return complainantService.getComplainantById(id);
+    }
+}
+package com.example.fir;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class FirApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(FirApplication.class, args);
+    }
+}
